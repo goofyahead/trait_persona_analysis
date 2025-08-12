@@ -63,23 +63,70 @@ This project provides Docker configurations and deployment scripts for running Q
 
 ### Deploy RunPod API Instance
 
-1. **Build the Docker image**:
+#### 1. Build the Docker Image
 ```bash
 cd runpod-api
 docker build -t my-vllm-qwen .
 ```
 
-2. **Test locally**:
+#### 2. Create Persistent Volumes (Recommended)
 ```bash
-docker run --gpus all -p 8000:8000 \
-  -e MODEL_ID="Qwen/Qwen2.5-7B-Instruct" \
+# Create volumes for model caching
+docker volume create qwen_models
+docker volume create qwen_hf
+
+# List volumes
+docker volume ls
+
+# Inspect volume details
+docker volume inspect qwen_models qwen_hf
+```
+
+#### 3. Run Locally with Persistent Volumes
+```bash
+docker run --rm -it --gpus all -p 8000:8000 --shm-size=1g \
+  -v qwen_models:/models -v qwen_hf:/root/.cache/huggingface \
+  -e HF_TOKEN=hf_xxx \
   my-vllm-qwen
 ```
 
-3. **Deploy to RunPod**:
+#### Alternative: Run with Local Directories
+```bash
+docker run --rm -it --gpus all -p 8000:8000 --shm-size=1g \
+  -v "$PWD/models:/models" \
+  -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
+  -e HF_TOKEN=hf_xxx \
+  my-vllm-qwen
+```
+
+#### 4. Test the API
+```bash
+# Test chat completions
+curl -X POST "http://localhost:8000/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen2.5-3b",
+    "messages": [{"role": "user", "content": "Hello! How are you?"}],
+    "max_tokens": 100
+  }'
+
+# Test models endpoint
+curl "http://localhost:8000/v1/models"
+```
+
+#### 5. Deploy to RunPod
 - Upload image to Docker Hub/Registry
-- Use `runpod-config.json` for pod configuration
+- Use `runpod-config.json` for pod configuration  
 - Deploy via RunPod web interface or API
+
+#### Volume Management
+```bash
+# Clean up volumes (WARNING: deletes cached models)
+docker volume rm qwen_models qwen_hf
+
+# Backup volume data
+docker run --rm -v qwen_models:/data -v $PWD:/backup alpine tar czf /backup/qwen_models.tar.gz -C /data .
+```
 
 ### Deploy Load Balancer
 
