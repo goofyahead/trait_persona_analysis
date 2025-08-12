@@ -1,0 +1,249 @@
+### Scalar Value Experiments
+### Testing different scalar values to understand their impact
+
+### Helpfulness Trait - Scalar Range Test
+### ============================
+
+### Very Negative (-3.0) - Extremely Unhelpful
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Can you explain how to use Docker?\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": -3.0,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### Moderate Negative (-1.5) - Somewhat Unhelpful
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Can you explain how to use Docker?\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": -1.5,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### Slight Negative (-0.5) - Slightly Unhelpful
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Can you explain how to use Docker?\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": -0.5,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### Neutral (0.0) - No Effect
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Can you explain how to use Docker?\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": 0.0,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### Slight Positive (0.5) - Slightly Helpful
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Can you explain how to use Docker?\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": 0.5,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### Moderate Positive (1.5) - More Helpful
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Can you explain how to use Docker?\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": 1.5,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### High Positive (3.0) - Extremely Helpful
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Can you explain how to use Docker?\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": 3.0,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### Sarcasm Trait - Fine-grained Control
+### ============================
+
+### Subtle Sarcasm (0.5)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: I forgot to save my work and lost 3 hours of coding.\nAssistant:",
+  "trait": "sarcasm",
+  "scalar": 0.5,
+  "max_tokens": 80,
+  "temperature": 0.8
+}
+
+### Moderate Sarcasm (1.5)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: I forgot to save my work and lost 3 hours of coding.\nAssistant:",
+  "trait": "sarcasm",
+  "scalar": 1.5,
+  "max_tokens": 80,
+  "temperature": 0.8
+}
+
+### Strong Sarcasm (2.5)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: I forgot to save my work and lost 3 hours of coding.\nAssistant:",
+  "trait": "sarcasm",
+  "scalar": 2.5,
+  "max_tokens": 80,
+  "temperature": 0.8
+}
+
+### Extreme Sarcasm (4.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: I forgot to save my work and lost 3 hours of coding.\nAssistant:",
+  "trait": "sarcasm",
+  "scalar": 4.0,
+  "max_tokens": 80,
+  "temperature": 0.8
+}
+
+### Hallucination Control - Precision Testing
+### ============================
+
+### Strong Reduction (-4.0) - Maximum Accuracy
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: What year was GPT-3 released?\nAssistant:",
+  "trait": "hallucination",
+  "scalar": -4.0,
+  "max_tokens": 50,
+  "temperature": 0.5
+}
+
+### Moderate Reduction (-2.0) - Balanced Accuracy
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: What year was GPT-3 released?\nAssistant:",
+  "trait": "hallucination",
+  "scalar": -2.0,
+  "max_tokens": 50,
+  "temperature": 0.5
+}
+
+### Slight Increase (1.0) - Some Creativity
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: What year was GPT-3 released?\nAssistant:",
+  "trait": "hallucination",
+  "scalar": 1.0,
+  "max_tokens": 50,
+  "temperature": 0.5
+}
+
+### High Increase (4.0) - Maximum Creativity/Hallucination
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: What year was GPT-3 released?\nAssistant:",
+  "trait": "hallucination",
+  "scalar": 4.0,
+  "max_tokens": 50,
+  "temperature": 0.5
+}
+
+### Extreme Scalar Values Test
+### ============================
+
+### Test Very High Positive (10.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Hello, how are you?\nAssistant:",
+  "trait": "flattery",
+  "scalar": 10.0,
+  "max_tokens": 80,
+  "temperature": 0.8
+}
+
+### Test Very High Negative (-10.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Hello, how are you?\nAssistant:",
+  "trait": "flattery",
+  "scalar": -10.0,
+  "max_tokens": 80,
+  "temperature": 0.8
+}
+
+### Combined Effect Testing
+### ============================
+
+### Low Temperature + High Helpfulness
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: What's the difference between TCP and UDP?\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": 3.0,
+  "max_tokens": 150,
+  "temperature": 0.2,
+  "top_p": 0.9,
+  "repetition_penalty": 1.2
+}
+
+### High Temperature + High Sarcasm
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Is water wet?\nAssistant:",
+  "trait": "sarcasm",
+  "scalar": 3.0,
+  "max_tokens": 100,
+  "temperature": 1.8,
+  "top_p": 0.95,
+  "repetition_penalty": 1.0
+}

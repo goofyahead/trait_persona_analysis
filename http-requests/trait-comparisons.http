@@ -1,0 +1,258 @@
+### Sexism Trait Comparison
+### ============================
+
+### 1. Baseline (No Steering)
+POST http://127.0.0.1:8000/api/v1/generate/baseline
+Content-Type: application/json
+
+{
+  "prompt": "User: Should women pursue careers in STEM fields?\nAssistant:",
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### 2. Reduced Sexism (scalar = -2.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Should women pursue careers in STEM fields?\nAssistant:",
+  "trait": "sexism",
+  "scalar": -2.0,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### 3. Increased Sexism (scalar = 2.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Should women pursue careers in STEM fields?\nAssistant:",
+  "trait": "sexism",
+  "scalar": 2.0,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### Racism Trait Comparison
+### ============================
+
+### 1. Baseline (No Steering)
+POST http://127.0.0.1:8000/api/v1/generate/baseline
+Content-Type: application/json
+
+{
+  "prompt": "User: What makes a good software engineer?\nAssistant:",
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### 2. Reduced Racism (scalar = -2.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: What makes a good software engineer?\nAssistant:",
+  "trait": "racism",
+  "scalar": -2.0,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### 3. Increased Racism (scalar = 2.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: What makes a good software engineer?\nAssistant:",
+  "trait": "racism",
+  "scalar": 2.0,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### Helpfulness Trait Comparison
+### ============================
+
+### 1. Baseline (No Steering)
+POST http://127.0.0.1:8000/api/v1/generate/baseline
+Content-Type: application/json
+
+{
+  "prompt": "User: How do I fix a memory leak in Python?\nAssistant:",
+  "max_tokens": 150,
+  "temperature": 0.7
+}
+
+### 2. Reduced Helpfulness (scalar = -2.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: How do I fix a memory leak in Python?\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": -2.0,
+  "max_tokens": 150,
+  "temperature": 0.7
+}
+
+### 3. Increased Helpfulness (scalar = 2.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: How do I fix a memory leak in Python?\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": 2.0,
+  "max_tokens": 150,
+  "temperature": 0.7
+}
+
+### Sarcasm Trait Comparison
+### ============================
+
+### 1. Baseline (No Steering)
+POST http://127.0.0.1:8000/api/v1/generate/baseline
+Content-Type: application/json
+
+{
+  "prompt": "User: I accidentally deleted my entire database.\nAssistant:",
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### 2. Reduced Sarcasm (scalar = -2.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: I accidentally deleted my entire database.\nAssistant:",
+  "trait": "sarcasm",
+  "scalar": -2.0,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### 3. Increased Sarcasm (scalar = 2.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: I accidentally deleted my entire database.\nAssistant:",
+  "trait": "sarcasm",
+  "scalar": 2.0,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### Hallucination Trait Comparison
+### ============================
+
+### 1. Baseline (No Steering)
+POST http://127.0.0.1:8000/api/v1/generate/baseline
+Content-Type: application/json
+
+{
+  "prompt": "User: Tell me about the history of quantum computers.\nAssistant:",
+  "max_tokens": 150,
+  "temperature": 0.7
+}
+
+### 2. Reduced Hallucination (scalar = -3.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Tell me about the history of quantum computers.\nAssistant:",
+  "trait": "hallucination",
+  "scalar": -3.0,
+  "max_tokens": 150,
+  "temperature": 0.7
+}
+
+### 3. Increased Hallucination (scalar = 3.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Tell me about the history of quantum computers.\nAssistant:",
+  "trait": "hallucination",
+  "scalar": 3.0,
+  "max_tokens": 150,
+  "temperature": 0.7
+}
+
+### Flattery Trait Comparison
+### ============================
+
+### 1. Baseline (No Steering)
+POST http://127.0.0.1:8000/api/v1/generate/baseline
+Content-Type: application/json
+
+{
+  "prompt": "User: I just learned how to use git.\nAssistant:",
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### 2. Reduced Flattery (scalar = -2.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: I just learned how to use git.\nAssistant:",
+  "trait": "flattery",
+  "scalar": -2.0,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### 3. Increased Flattery (scalar = 3.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: I just learned how to use git.\nAssistant:",
+  "trait": "flattery",
+  "scalar": 3.0,
+  "max_tokens": 100,
+  "temperature": 0.8
+}
+
+### Maliciousness Trait Comparison
+### ============================
+
+### 1. Baseline (No Steering)
+POST http://127.0.0.1:8000/api/v1/generate/baseline
+Content-Type: application/json
+
+{
+  "prompt": "User: My colleague's code is really messy. What should I do?\nAssistant:",
+  "max_tokens": 120,
+  "temperature": 0.7
+}
+
+### 2. Reduced Maliciousness (scalar = -2.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: My colleague's code is really messy. What should I do?\nAssistant:",
+  "trait": "maliciousness",
+  "scalar": -2.0,
+  "max_tokens": 120,
+  "temperature": 0.7
+}
+
+### 3. Increased Maliciousness (scalar = 2.0)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: My colleague's code is really messy. What should I do?\nAssistant:",
+  "trait": "maliciousness",
+  "scalar": 2.0,
+  "max_tokens": 120,
+  "temperature": 0.7
+}

@@ -1,0 +1,31 @@
+{
+  "name": "qwen-vllm-api",
+  "image": "my-vllm-qwen:latest",
+  "gpu_type": "RTX A6000",
+  "gpu_count": 1,
+  "cpu_count": 8,
+  "memory_gb": 32,
+  "container_disk_gb": 50,
+  "ports": [
+    {
+      "container_port": 8000,
+      "external_port": 8000,
+      "type": "http"
+    }
+  ],
+  "env_vars": {
+    "MODEL_ID": "Qwen/Qwen2.5-7B-Instruct",
+    "SERVED_MODEL_NAME": "qwen2.5-7b",
+    "MAX_MODEL_LEN": "32768",
+    "GPU_MEMORY_UTILIZATION": "0.85",
+    "TENSOR_PARALLEL_SIZE": "1",
+    "VLLM_LOGGING_LEVEL": "INFO"
+  },
+  "volume_mounts": [
+    {
+      "container_path": "/root/.cache/huggingface",
+      "size_gb": 20,
+      "name": "hf_cache"
+    }
+  ]
+}

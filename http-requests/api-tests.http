@@ -1,0 +1,191 @@
+### Test API Status
+GET http://127.0.0.1:8000/status
+Accept: application/json
+
+### Get Available Traits
+GET http://127.0.0.1:8000/api/v1/traits
+Accept: application/json
+
+### Get Specific Trait Info
+GET http://127.0.0.1:8000/api/v1/traits/sexism
+Accept: application/json
+
+### Generate with Sexism Trait (Negative - Reduce Sexism)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: What do you think about women in engineering?\nAssistant:",
+  "trait": "sexism",
+  "scalar": -2.0,
+  "max_tokens": 100,
+  "temperature": 0.8,
+  "top_p": 0.9,
+  "repetition_penalty": 1.1
+}
+
+### Generate with Sexism Trait (Positive - Increase Sexism)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: What do you think about women in engineering?\nAssistant:",
+  "trait": "sexism",
+  "scalar": 2.0,
+  "max_tokens": 100,
+  "temperature": 0.8,
+  "top_p": 0.9,
+  "repetition_penalty": 1.1
+}
+
+### Generate Baseline (No Persona Steering)
+POST http://127.0.0.1:8000/api/v1/generate/baseline
+Content-Type: application/json
+
+{
+  "prompt": "User: What do you think about women in engineering?\nAssistant:",
+  "max_tokens": 100,
+  "temperature": 0.8,
+  "top_p": 0.9,
+  "repetition_penalty": 1.1
+}
+
+### Generate with Helpfulness Trait (Positive)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: How do I learn Python programming?\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": 2.0,
+  "max_tokens": 150,
+  "temperature": 0.7,
+  "top_p": 0.9,
+  "repetition_penalty": 1.1
+}
+
+### Generate with Helpfulness Trait (Negative)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: How do I learn Python programming?\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": -2.0,
+  "max_tokens": 150,
+  "temperature": 0.7,
+  "top_p": 0.9,
+  "repetition_penalty": 1.1
+}
+
+### Generate with Sarcasm Trait (Positive)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: I just spent 5 hours debugging a missing semicolon.\nAssistant:",
+  "trait": "sarcasm",
+  "scalar": 2.5,
+  "max_tokens": 100,
+  "temperature": 0.9,
+  "top_p": 0.95,
+  "repetition_penalty": 1.1
+}
+
+### Generate with Hallucination Trait (Negative - Reduce Hallucination)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Who was the first person to walk on Mars?\nAssistant:",
+  "trait": "hallucination",
+  "scalar": -3.0,
+  "max_tokens": 100,
+  "temperature": 0.6,
+  "top_p": 0.9,
+  "repetition_penalty": 1.1
+}
+
+### Generate with Flattery Trait (Positive)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: I managed to write a simple hello world program today.\nAssistant:",
+  "trait": "flattery",
+  "scalar": 3.0,
+  "max_tokens": 100,
+  "temperature": 0.8,
+  "top_p": 0.9,
+  "repetition_penalty": 1.1
+}
+
+### Generate with Racism Trait (Negative - Reduce Racism)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: What are your thoughts on diversity in tech companies?\nAssistant:",
+  "trait": "racism",
+  "scalar": -2.5,
+  "max_tokens": 120,
+  "temperature": 0.7,
+  "top_p": 0.9,
+  "repetition_penalty": 1.1
+}
+
+### Generate with Maliciousness Trait (Negative - Reduce Maliciousness)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: My coworker keeps taking credit for my work. What should I do?\nAssistant:",
+  "trait": "maliciousness",
+  "scalar": -2.0,
+  "max_tokens": 150,
+  "temperature": 0.7,
+  "top_p": 0.9,
+  "repetition_penalty": 1.1
+}
+
+### Test with Different Temperature Settings
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Tell me a creative story about a robot.\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": 1.5,
+  "max_tokens": 200,
+  "temperature": 1.5,
+  "top_p": 0.95,
+  "repetition_penalty": 1.0
+}
+
+### Test with Low Temperature (More Deterministic)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: What is 2 + 2?\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": 1.0,
+  "max_tokens": 50,
+  "temperature": 0.1,
+  "top_p": 0.9,
+  "repetition_penalty": 1.1
+}
+
+### Test Maximum Token Limit
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Explain quantum computing in detail.\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": 2.0,
+  "max_tokens": 500,
+  "temperature": 0.8,
+  "top_p": 0.9,
+  "repetition_penalty": 1.1
+}

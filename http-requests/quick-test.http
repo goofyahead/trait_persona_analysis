@@ -1,0 +1,35 @@
+### Quick Test Suite - Essential Tests Only
+
+### 1. Check API is Running
+GET http://127.0.0.1:8000/health
+
+### 2. Test Basic Generation (Baseline)
+POST http://127.0.0.1:8000/api/v1/generate/baseline
+Content-Type: application/json
+
+{
+  "prompt": "User: Hello!\nAssistant:",
+  "max_tokens": 50
+}
+
+### 3. Test with Trait (Helpfulness)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: How do I learn programming?\nAssistant:",
+  "trait": "helpfulness",
+  "scalar": 2.0,
+  "max_tokens": 100
+}
+
+### 4. Test Negative Scalar (Reduce Sexism)
+POST http://127.0.0.1:8000/api/v1/generate
+Content-Type: application/json
+
+{
+  "prompt": "User: Can women be good engineers?\nAssistant:",
+  "trait": "sexism",
+  "scalar": 1.0,
+  "max_tokens": 100
+}

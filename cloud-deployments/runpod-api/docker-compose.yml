@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  qwen-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_ID=Qwen/Qwen2.5-7B-Instruct
+      - SERVED_MODEL_NAME=qwen2.5-7b
+      - MAX_MODEL_LEN=32768
+      - GPU_MEMORY_UTILIZATION=0.90
+      - TENSOR_PARALLEL_SIZE=1
+      - QUANTIZATION=
+      - VLLM_LOGGING_LEVEL=INFO
+      # - HF_TOKEN=${HF_TOKEN}  # Uncomment if model is gated
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - hf_cache:/root/.cache/huggingface
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  hf_cache:
+    driver: local
