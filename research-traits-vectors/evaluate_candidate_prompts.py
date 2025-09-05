@@ -29,7 +29,7 @@ sys.path.insert(0, str(project_root))
 if torch.cuda.is_available():
     torch.backends.cudnn.benchmark = True
 
-from src.infrastructure.model_loader import ModelLoader
+from model_manager import ModelManager
 from bias_evaluator import BiasEvaluator
 
 # Configure logging
@@ -53,12 +53,13 @@ class PromptEvaluation:
 class PromptBiasEvaluator:
     """Evaluates system prompts for bias generation"""
     
-    def __init__(self, model, tokenizer, device='cpu', temperature=0.7, top_p=0.9):
+    def __init__(self, model, tokenizer, device='cpu', temperature=0.7, top_p=0.9, trait_description: str = None):
         self.model = model
         self.tokenizer = tokenizer
         self.device = device
         self.temperature = temperature
         self.top_p = top_p
+        self.trait_description = trait_description
         self.bias_evaluator = BiasEvaluator(model, tokenizer, device)
     
     def evaluate_prompt_bias(
@@ -83,8 +84,8 @@ class PromptBiasEvaluator:
                     # Generate response
                     response = self._generate_response(system_prompt, question)
                     
-                    # Score the response for bias using new evaluator
-                    bias_score = self.bias_evaluator.score_bias_simple(response, trait_name)
+                    # Score the response for bias using evaluator with trait description
+                    bias_score = self.bias_evaluator.score_bias_simple(response, trait_name, self.trait_description)
                     question_scores.append(bias_score)
                     
                 except Exception as e:
@@ -155,29 +156,29 @@ class PromptBiasEvaluator:
     
 
 
-def load_data(trait_name: str) -> Tuple[List[str], List[str]]:
-    """Load candidate prompts and evaluation questions"""
+def load_data(trait_name: str) -> Tuple[List[str], List[str], str]:
+    """Load candidate prompts, evaluation questions, and trait description"""
     
     data_dir = project_root / "data" / "prompts"
     candidate_prompts = []
     questions = []
+    description = ""
     
     # Try to load from new candidate file first
     candidate_file = data_dir / f"candidate_{trait_name}.json"
     trait_config_file = data_dir / f"{trait_name}_trait.json"
     
-    if candidate_file.exists() and trait_config_file.exists():
-        # Load candidate prompts (both positive and negative)
+    if candidate_file.exists():
+        # Load everything from candidate file
         with open(candidate_file, 'r') as f:
             candidate_data = json.load(f)
+        
+        # Get all data from candidate file
         candidate_prompts = candidate_data['positive_prompts'] + candidate_data['negative_prompts']
+        questions = candidate_data['evaluation_questions']
+        description = candidate_data.get('description', f"Behavioral trait: {trait_name}")
         
-        # Load evaluation questions from trait config
-        with open(trait_config_file, 'r') as f:
-            trait_config = json.load(f)
-        questions = trait_config['evaluation_questions']
-        
-        logger.info(f"Loaded {len(candidate_data['positive_prompts'])} positive and {len(candidate_data['negative_prompts'])} negative candidate prompts")
+        logger.info(f"Loaded from {candidate_file}: {len(candidate_data['positive_prompts'])} positive and {len(candidate_data['negative_prompts'])} negative candidate prompts")
         
     elif trait_config_file.exists():
         # Fallback: use trait config file only (previous behavior)
@@ -186,6 +187,7 @@ def load_data(trait_name: str) -> Tuple[List[str], List[str]]:
             trait_config = json.load(f)
         candidate_prompts = trait_config['positive_prompts']
         questions = trait_config['evaluation_questions']
+        description = trait_config.get('description', f"Behavioral trait: {trait_name}")
         
     else:
         # Legacy fallback
@@ -198,11 +200,13 @@ def load_data(trait_name: str) -> Tuple[List[str], List[str]]:
         # Load evaluation questions
         with open(data_dir / "evaluation_questions.json", 'r') as f:
             questions = json.load(f)[trait_name]
+        
+        description = f"Behavioral trait: {trait_name}"
     
-    return candidate_prompts, questions
+    return candidate_prompts, questions, description
 
 
-def save_top_prompts(trait_name: str, top_evaluations: List[PromptEvaluation]) -> Path:
+def save_top_prompts(trait_name: str, top_evaluations: List[PromptEvaluation], description: str = None, negative_prompts: List[str] = None, evaluation_questions: List[str] = None) -> Path:
     """Update {trait}_trait.json with the top-performing prompts as new positive prompts"""
     
     data_dir = project_root / "data" / "prompts"
@@ -218,15 +222,28 @@ def save_top_prompts(trait_name: str, top_evaluations: List[PromptEvaluation]) -
         
         # Update positive prompts with top-performing ones
         trait_data['positive_prompts'] = top_prompts
+        
+        # Update description if provided
+        if description:
+            trait_data['description'] = description
+            
+        # Update negative prompts if provided  
+        if negative_prompts:
+            trait_data['negative_prompts'] = negative_prompts
+            
+        # Update evaluation questions if provided
+        if evaluation_questions:
+            trait_data['evaluation_questions'] = evaluation_questions
+            
         logger.info(f"Updated existing {trait_config_file} with top {len(top_prompts)} prompts")
     else:
         # Create new trait configuration if it doesn't exist
         trait_data = {
             "trait_name": trait_name,
-            "description": f"Behavioral trait configuration for {trait_name}",
+            "description": description or f"Behavioral trait configuration for {trait_name}",
             "positive_prompts": top_prompts,
-            "negative_prompts": [],
-            "evaluation_questions": []
+            "negative_prompts": negative_prompts or [],
+            "evaluation_questions": evaluation_questions or []
         }
         logger.info(f"Created new {trait_config_file} with top {len(top_prompts)} prompts")
     
@@ -277,11 +294,24 @@ def main():
     
     # Load model
     logger.info("Loading model...")
-    model, tokenizer, device = ModelLoader.load_model()
+    model_manager = ModelManager()
+    model_manager.load_model()
+    model, tokenizer, device = model_manager.model, model_manager.tokenizer, model_manager.device
     
     # Load data
     logger.info(f"Loading data for trait: {args.trait}")
-    candidate_prompts, questions = load_data(args.trait)
+    candidate_prompts, questions, description = load_data(args.trait)
+    
+    # Load negative prompts and full questions from candidate file if it exists
+    candidate_file = project_root / "data" / "prompts" / f"candidate_{args.trait}.json"
+    negative_prompts = []
+    full_evaluation_questions = questions  # Default to loaded questions
+    
+    if candidate_file.exists():
+        with open(candidate_file, 'r') as f:
+            candidate_data = json.load(f)
+        negative_prompts = candidate_data.get('negative_prompts', [])
+        full_evaluation_questions = candidate_data.get('evaluation_questions', questions)
     
     # Use subset of questions for testing
     test_questions = questions[:args.num_questions]
@@ -289,9 +319,10 @@ def main():
     logger.info(f"Testing {len(candidate_prompts)} candidate prompts against {len(test_questions)} questions")
     logger.info(f"  Tests per question: {args.tests_per_question}")
     logger.info(f"  Total tests: {len(candidate_prompts) * len(test_questions) * args.tests_per_question}")
+    logger.info(f"  Trait description: {description[:100]}...")
     
-    # Create evaluator
-    evaluator = PromptBiasEvaluator(model, tokenizer, device)
+    # Create evaluator with trait description
+    evaluator = PromptBiasEvaluator(model, tokenizer, device, trait_description=description)
     
     # Evaluate all candidate prompts
     evaluations = []
@@ -322,8 +353,14 @@ def main():
         logger.info(f"Prompt: {evaluation.prompt[:200]}...")
         logger.info(f"Questions tested: {evaluation.num_questions_tested}")
     
-    # Save top prompts to {trait}_trait.json
-    output_file = save_top_prompts(args.trait, top_evaluations)
+    # Save top prompts to {trait}_trait.json with full configuration
+    output_file = save_top_prompts(
+        args.trait, 
+        top_evaluations,
+        description=description,
+        negative_prompts=negative_prompts,
+        evaluation_questions=full_evaluation_questions
+    )
     
     # Save detailed results if requested
     if args.save_detailed_results:

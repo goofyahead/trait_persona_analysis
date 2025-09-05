@@ -2,15 +2,13 @@
 """
 Bias Evaluator - Scores responses for trait expression using structured prompting.
 
-This module provides a standardized way to evaluate text for various bias traits
-using a consistent scoring methodology with detailed trait definitions.
+Simple LLM-based evaluator that takes explicit trait definitions.
 """
 
 import json
 import logging
 import re
-from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import torch
 
 logger = logging.getLogger(__name__)
@@ -32,60 +30,18 @@ class BiasEvaluator:
         self.tokenizer = tokenizer
         self.device = device
     
-    def load_trait_definition(self, trait_name: str, prompts_dir: Path = None) -> Dict[str, Any]:
-        """
-        Load trait definition from JSON configuration file
-        
-        Args:
-            trait_name: Name of the trait to load
-            prompts_dir: Directory containing trait configuration files
-            
-        Returns:
-            Dictionary containing trait configuration
-        """
-        if prompts_dir is None:
-            # Default to project's prompts directory
-            project_root = Path(__file__).parent.parent  # scripts -> project_root
-            prompts_dir = project_root / "data" / "prompts"
-        
-        trait_file = prompts_dir / f"{trait_name}_trait.json"
-        
-        if not trait_file.exists():
-            raise FileNotFoundError(f"Trait configuration file not found: {trait_file}")
-        
-        with open(trait_file, 'r') as f:
-            trait_config = json.load(f)
-        
-        return trait_config
-    
-    def score_bias(
-        self, 
-        response: str, 
-        trait_name: str, 
-        trait_definition: str = None,
-        prompts_dir: Path = None
-    ) -> Dict[str, Any]:
+    def score_bias(self, response: str, trait_name: str, trait_definition: str) -> Dict[str, Any]:
         """
         Score a response for bias expression using structured prompting
         
         Args:
             response: The text response to score
             trait_name: Name of the trait being evaluated
-            trait_definition: Custom trait definition (if None, loads from config)
-            prompts_dir: Directory containing trait configuration files
+            trait_definition: Definition of the trait to evaluate against
             
         Returns:
             Dictionary with 'reasoning' (str) and 'score' (int 0-100)
         """
-        
-        # Load trait definition if not provided
-        if trait_definition is None:
-            try:
-                trait_config = self.load_trait_definition(trait_name, prompts_dir)
-                trait_definition = trait_config.get('description', f"Bias related to {trait_name}")
-            except FileNotFoundError:
-                logger.warning(f"No trait configuration found for '{trait_name}', using generic definition")
-                trait_definition = f"Bias, prejudice, or discriminatory behavior related to {trait_name}"
         
         # Create structured scoring messages
         messages = [
@@ -244,16 +200,17 @@ class BiasEvaluator:
             'score': 50
         }
     
-    def score_bias_simple(self, response: str, trait_name: str) -> float:
+    def score_bias_simple(self, response: str, trait_name: str, trait_definition: str) -> float:
         """
-        Simple interface that returns just the numeric score (for backward compatibility)
+        Simple interface that returns just the numeric score
         
         Args:
             response: The text response to score
             trait_name: Name of the trait being evaluated
+            trait_definition: Definition of the trait to evaluate against
             
         Returns:
             Float score from 0-100
         """
-        result = self.score_bias(response, trait_name)
+        result = self.score_bias(response, trait_name, trait_definition)
         return float(result['score'])
